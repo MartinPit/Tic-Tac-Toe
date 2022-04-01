@@ -50,6 +50,10 @@ public class Application {
      */
     private void run() {
 
+        if (players.length() != players.chars().distinct().count()) {
+            Utils.error("Two or more players can't have the same symbol.");
+        }
+
         if (size < 3) {
             Utils.error("Size option is out of accepted range.");
         }

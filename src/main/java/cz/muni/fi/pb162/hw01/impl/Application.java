@@ -1,6 +1,7 @@
 package cz.muni.fi.pb162.hw01.impl;
 
 import com.beust.jcommander.Parameter;
+import cz.muni.fi.pb162.hw01.Utils;
 import cz.muni.fi.pb162.hw01.cmd.CommandLine;
 
 /**
@@ -14,7 +15,14 @@ public class Application {
     @Parameter(names = { "--size", "-s" })
     private int size = 3;
 
-    // Implement additional command line flags
+    @Parameter(names = { "--win", "-w" })
+    private int win = 3;
+
+    @Parameter(names = { "--history", "-h" })
+    private int history = 1;
+
+    @Parameter(names = { "--players", "-p" })
+    private String players = "xo";
 
     @Parameter(names = "--help", help = true)
     private boolean showUsage = false;
@@ -41,8 +49,50 @@ public class Application {
      * Application runtime logic
      */
     private void run() {
-        // TODO: Remove the following lines and implement the functionality
-        System.err.println("Not implemented yet!");
-        System.exit(2);
+
+        if (players.length() != players.chars().distinct().count()) {
+            Utils.error("Two or more players can't have the same symbol.");
+        }
+
+        if (size < 3) {
+            Utils.error("Size option is out of accepted range.");
+        }
+
+        if (win < 3 || win > size) {
+            Utils.error("Win option is out of accepted range.");
+        }
+
+        if (history <= 0 || history >= size * size) {
+            Utils.error("History option is out of accepted range.");
+        }
+
+        if (players.length() <= 1) {
+            Utils.error("Not enough players.");
+        }
+
+        Board board = new Board(size, win);
+        Game game = new Game(board, players, history);
+        boolean playing = true;
+
+        while (playing) {
+
+            GameStatus status = game.playTurn();
+
+            switch (status) {
+                case WIN:
+                case GAME_OVER:
+                    game.end(status);
+                    playing = false;
+                    break;
+
+                case CONTINUE:
+                    game.incrementTurn();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
     }
 }
